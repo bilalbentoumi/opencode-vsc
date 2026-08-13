@@ -2,7 +2,7 @@
   "name": "opencode-vsc",
   "displayName": "OpenCode Terminal",
   "description": "Embeds the OpenCode web UI in a VS Code side panel.",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "publisher": "bilalbentoumi",
   "icon": "media/icon.png",
   "license": "MIT",
