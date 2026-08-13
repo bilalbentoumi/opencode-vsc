@@ -45,15 +45,6 @@
         "title": "OpenCode Terminal: Restart Session"
       }
     ],
-    "menus": {
-      "view/title": [
-        {
-          "command": "opencode-terminal.restart",
-          "when": "view == opencode-terminal-view",
-          "group": "navigation"
-        }
-      ]
-    },
     "configuration": {
       "title": "OpenCode Terminal",
       "properties": {
@@ -74,11 +65,13 @@
     "build": "npm run build:ext",
     "build:ext": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --platform=node --format=cjs --sourcemap",
     "watch": "npm run build:ext -- --watch",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "package": "npm run build && vsce package"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.9.2",
     "esbuild": "^0.28.2",
     "typescript": "^5.9.3"
   }

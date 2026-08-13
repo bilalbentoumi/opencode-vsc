@@ -4,5 +4,9 @@ src/**
 node_modules/**
 **/*.ts
 **/*.map
+tsconfig.json
+.gitignore
+package-lock.json
+*.vsix
 !media/icon.svg
 !media/main.js
