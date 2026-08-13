@@ -58,10 +58,10 @@ For more information, visit the repository.
 
 ## Configuration
 
-| Setting | Default | Description |
-| --- | --- | --- |
-| `opencode-vsc.command` | `opencode` | Command (or full path) used to launch the OpenCode server. |
-| `opencode-vsc.port` | `0` | Port for the server (`0` = OpenCode's default). If busy, a free port is used. |
+| Setting                | Default    | Description                                                                   |
+| ---------------------- | ---------- | ----------------------------------------------------------------------------- |
+| `opencode-vsc.command` | `opencode` | Command (or full path) used to launch the OpenCode server.                    |
+| `opencode-vsc.port`    | `0`        | Port for the server (`0` = OpenCode's default). If busy, a free port is used. |
 
 ## Commands
 
