@@ -5,6 +5,10 @@
   "version": "0.0.1",
   "publisher": "bilalbentoumi",
   "icon": "media/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bilalbentoumi/opencode-vsc.git"
+  },
   "license": "MIT",
   "engines": {
     "vscode": "^1.90.0"
