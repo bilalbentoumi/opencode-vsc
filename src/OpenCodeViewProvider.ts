@@ -13,7 +13,7 @@ interface ViewMessage {
 const MAX_RETRIES = 3;
 
 export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
-	public static readonly viewType = "opencode-terminal-view";
+	public static readonly viewType = "opencode-vsc-view";
 
 	private view?: vscode.WebviewView;
 	private server?: ChildProcessWithoutNullStreams;

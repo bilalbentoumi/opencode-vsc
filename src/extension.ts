@@ -8,10 +8,10 @@ export function activate(context: vscode.ExtensionContext): void {
 		vscode.window.registerWebviewViewProvider(OpenCodeViewProvider.viewType, provider, {
 			webviewOptions: { retainContextWhenHidden: true },
 		}),
-		vscode.commands.registerCommand("opencode-terminal.focus", () => {
+		vscode.commands.registerCommand("opencode-vsc.focus", () => {
 			void vscode.commands.executeCommand(`${OpenCodeViewProvider.viewType}.focus`);
 		}),
-		vscode.commands.registerCommand("opencode-terminal.restart", () => provider.restart()),
+		vscode.commands.registerCommand("opencode-vsc.restart", () => provider.restart()),
 		provider,
 	);
 }

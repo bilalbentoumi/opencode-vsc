@@ -1,5 +1,5 @@
 {
-  "name": "opencode-terminal",
+  "name": "opencode-vsc",
   "displayName": "OpenCode Terminal",
   "description": "Embeds the OpenCode web UI in a VS Code side panel.",
   "version": "0.0.2",
@@ -14,23 +14,23 @@
   ],
   "main": "./out/extension.js",
   "activationEvents": [
-    "onView:opencode-terminal-view"
+    "onView:opencode-vsc-view"
   ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "opencode-terminal",
+          "id": "opencode-vsc",
           "title": "OpenCode",
           "icon": "media/icon.svg"
         }
       ]
     },
     "views": {
-      "opencode-terminal": [
+      "opencode-vsc": [
         {
-          "id": "opencode-terminal-view",
-          "name": "Terminal",
+          "id": "opencode-vsc-view",
+          "name": "OpenCode",
           "type": "webview",
           "icon": "media/icon.svg"
         }
@@ -38,16 +38,16 @@
     },
     "commands": [
       {
-        "command": "opencode-terminal.focus",
-        "title": "OpenCode Terminal: Focus Side Panel"
+        "command": "opencode-vsc.focus",
+        "title": "OpenCode: Focus Side Panel"
       },
       {
-        "command": "opencode-terminal.restart",
-        "title": "OpenCode Terminal: Restart Session"
+        "command": "opencode-vsc.restart",
+        "title": "OpenCode: Restart Session"
       }
     ],
     "configuration": {
-      "title": "OpenCode Terminal",
+      "title": "OpenCode",
       "properties": {
         "opencodeTerminal.command": {
           "type": "string",
