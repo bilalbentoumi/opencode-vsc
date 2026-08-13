@@ -1,6 +1,6 @@
 {
   "name": "opencode-vsc",
-  "displayName": "OpenCode Terminal",
+  "displayName": "OpenCode",
   "description": "Embeds the OpenCode web UI in a VS Code side panel.",
   "version": "0.0.1",
   "publisher": "bilalbentoumi",
@@ -53,12 +53,12 @@
     "configuration": {
       "title": "OpenCode",
       "properties": {
-        "opencodeTerminal.command": {
+        "opencode-vsc.command": {
           "type": "string",
           "default": "opencode",
           "description": "Command (or full path) used to launch the OpenCode server."
         },
-        "opencodeTerminal.port": {
+        "opencode-vsc.port": {
           "type": "number",
           "default": 0,
           "description": "Port for the OpenCode server. Use 0 for the default port; if it is busy the extension retries on a free port."

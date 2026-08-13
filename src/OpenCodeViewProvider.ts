@@ -61,9 +61,9 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
 		}
 		const id = ++this.serverId;
 		const command = resolveCommand(
-			vscode.workspace.getConfiguration("opencodeTerminal").get<string>("command", "opencode"),
+			vscode.workspace.getConfiguration("opencode-vsc").get<string>("command", "opencode"),
 		);
-		const requestedPort = port ?? vscode.workspace.getConfiguration("opencodeTerminal").get<number>("port", 0);
+		const requestedPort = port ?? vscode.workspace.getConfiguration("opencode-vsc").get<number>("port", 0);
 		const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? os.homedir();
 
 		let child: ChildProcessWithoutNullStreams;
@@ -75,7 +75,7 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
 		} catch (err) {
 			this.post({
 				type: "error",
-				message: `Failed to launch "${command}". Is the OpenCode CLI installed? Set "opencodeTerminal.command" to the full path if needed. (${(err as Error).message})`,
+				message: `Failed to launch "${command}". Is the OpenCode CLI installed? Set "opencode-vsc.command" to the full path if needed. (${(err as Error).message})`,
 			});
 			return;
 		}

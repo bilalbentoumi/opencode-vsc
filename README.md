@@ -2,7 +2,7 @@
 
 # OpenCode Extension for VS Code
 
-<img alt="OpenCode Terminal logo" src="media/icon.png" width="80" height="80">
+<img alt="OpenCode logo" src="media/icon.png" width="80" height="80">
 
 AI coding agent for VS Code, powered by OpenCode.
 
@@ -39,12 +39,12 @@ The `opencode` binary is not bundled: install and authenticate it once, and the 
 For more information, visit the repository.
 
 <div align="center">
-<img alt="OpenCode Terminal screenshot" src="media/screenshot.png" width="100%">
+<img alt="OpenCode screenshot" src="media/screenshot.png" width="100%">
 </div>
 
 ## Requirements
 
-- [OpenCode CLI](https://opencode.ai) (`opencode` on PATH, or set `opencodeTerminal.command` to a full path).
+- [OpenCode CLI](https://opencode.ai) (`opencode` on PATH, or set `opencode-vsc.command` to a full path).
 - VS Code 1.90+.
 
 ## Features
@@ -60,13 +60,13 @@ For more information, visit the repository.
 
 | Setting | Default | Description |
 | --- | --- | --- |
-| `opencodeTerminal.command` | `opencode` | Command (or full path) used to launch the OpenCode server. |
-| `opencodeTerminal.port` | `0` | Port for the server (`0` = OpenCode's default). If busy, a free port is used. |
+| `opencode-vsc.command` | `opencode` | Command (or full path) used to launch the OpenCode server. |
+| `opencode-vsc.port` | `0` | Port for the server (`0` = OpenCode's default). If busy, a free port is used. |
 
 ## Commands
 
-- `OpenCode Terminal: Focus Side Panel` — open/focus the side panel.
-- `OpenCode Terminal: Restart Session` — restart the server and reload the UI (also available as a panel title-bar button).
+- `OpenCode: Focus Side Panel` — open/focus the side panel.
+- `OpenCode: Restart Session` — restart the server and reload the UI (also available as a panel title-bar button).
 
 ## Issues
 
@@ -74,4 +74,4 @@ Found a bug or have a feature request? Please open an issue on GitHub.
 
 ## License
 
-OpenCode Terminal is released under the MIT License. It embeds the MIT-licensed OpenCode web UI through its documented `serve` interface.
+OpenCode is released under the MIT License. It embeds the MIT-licensed OpenCode web UI through its documented `serve` interface.
