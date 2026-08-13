@@ -1,0 +1,85 @@
+{
+  "name": "opencode-terminal",
+  "displayName": "OpenCode Terminal",
+  "description": "Embeds the OpenCode web UI in a VS Code side panel.",
+  "version": "0.0.2",
+  "publisher": "local-dev",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "main": "./out/extension.js",
+  "activationEvents": [
+    "onView:opencode-terminal-view"
+  ],
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "opencode-terminal",
+          "title": "OpenCode",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "opencode-terminal": [
+        {
+          "id": "opencode-terminal-view",
+          "name": "Terminal",
+          "type": "webview",
+          "icon": "media/icon.svg"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "opencode-terminal.focus",
+        "title": "OpenCode Terminal: Focus Side Panel"
+      },
+      {
+        "command": "opencode-terminal.restart",
+        "title": "OpenCode Terminal: Restart Session"
+      }
+    ],
+    "menus": {
+      "view/title": [
+        {
+          "command": "opencode-terminal.restart",
+          "when": "view == opencode-terminal-view",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "OpenCode Terminal",
+      "properties": {
+        "opencodeTerminal.command": {
+          "type": "string",
+          "default": "opencode",
+          "description": "Command (or full path) used to launch the OpenCode server."
+        },
+        "opencodeTerminal.port": {
+          "type": "number",
+          "default": 0,
+          "description": "Port for the OpenCode server. Use 0 for the default port; if it is busy the extension retries on a free port."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "build": "npm run build:ext",
+    "build:ext": "esbuild src/extension.ts --bundle --outfile=out/extension.js --external:vscode --platform=node --format=cjs --sourcemap",
+    "watch": "npm run build:ext -- --watch",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.90.0",
+    "esbuild": "^0.28.2",
+    "typescript": "^5.9.3"
+  }
+}

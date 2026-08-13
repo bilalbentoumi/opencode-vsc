@@ -1,0 +1,8 @@
+.git/**
+.vscode/**
+src/**
+node_modules/**
+**/*.ts
+**/*.map
+!media/icon.svg
+!media/main.js
