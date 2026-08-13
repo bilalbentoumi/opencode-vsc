@@ -18,10 +18,10 @@ AI coding agent for VS Code, powered by OpenCode.
 <a href="https://github.com/bilalbentoumi/opencode-vsc/pulls">
 <img src="https://img.shields.io/github/issues-pr/bilalbentoumi/opencode-vsc?color=8B5CF6" />
 </a>
-<a href="https://marketplace.visualstudio.com/items?itemName=bilalbentoumi.opencode-vsc">
+<a href="https://marketplace.visualstudio.com/items?itemName=bilalbentoumi.vsc-opencode">
 <img src="https://img.shields.io/badge/VS%20Code-Marketplace-0078D4?logo=visualstudiocode">
 </a>
-<a href="https://open-vsx.org/extension/bilalbentoumi/opencode-vsc">
+<a href="https://open-vsx.org/extension/bilalbentoumi/vsc-opencode">
 <img src="https://img.shields.io/badge/Open%20VSX-Registry-C8962E?logo=openvsx">
 </a>
 </p>
