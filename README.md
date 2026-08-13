@@ -1,9 +1,12 @@
 <div align="center">
-OpenCode Terminal
+
+# OpenCode Extension for VS Code
+
 <img alt="OpenCode Terminal logo" src="media/icon.png" width="80" height="80">
+
 AI coding agent for VS Code, powered by OpenCode.
 
-github.com/bilalbentoumi/opencode-vsc
+[github.com/bilalbentoumi/opencode-vsc](https://github.com/bilalbentoumi/opencode-vsc)
 
 <p align="center">
 <a href="https://github.com/bilalbentoumi/opencode-vsc/releases">
@@ -22,6 +25,7 @@ github.com/bilalbentoumi/opencode-vsc
 <img src="https://img.shields.io/badge/Open%20VSX-Registry-C8962E?logo=openvsx">
 </a>
 </p>
+
 </div>
 
 ## Overview
@@ -34,25 +38,14 @@ The `opencode` binary is not bundled: install and authenticate it once, and the 
 
 For more information, visit the repository.
 
+<div align="center">
+<img alt="OpenCode Terminal screenshot" src="media/screenshot.png" width="100%">
+</div>
+
 ## Requirements
 
 - [OpenCode CLI](https://opencode.ai) (`opencode` on PATH, or set `opencodeTerminal.command` to a full path).
 - VS Code 1.90+.
-
-## Getting started
-
-```bash
-npm install
-npm run build
-```
-
-Then press `F5` in VS Code to launch the Extension Development Host. Click the **OpenCode** icon in the Activity Bar.
-
-To rebuild on save during development:
-
-```bash
-npm run watch
-```
 
 ## Features
 
@@ -74,23 +67,6 @@ npm run watch
 
 - `OpenCode Terminal: Focus Side Panel` — open/focus the side panel.
 - `OpenCode Terminal: Restart Session` — restart the server and reload the UI (also available as a panel title-bar button).
-
-## How it works
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ Extension Host            Webview (side panel)          │
-│  spawn("opencode serve") ──stdout──► parse "listening"  │
-│  ──── "http://127.0.0.1:PORT" ──postMessage──► iframe  │
-│                        └──► https://…/app  (web UI)     │
-└─────────────────────────────────────────────────────────┘
-```
-
-- `src/extension.ts` — activation, commands.
-- `src/OpenCodeViewProvider.ts` — spawns/stops the server, parses the listening URL, falls back to a free port on collision, resolves the binary via login shell if needed.
-- `media/main.js` — tiny webview script that sets the iframe `src` from the URL message.
-
-Build output is `out/extension.js` (bundled with esbuild).
 
 ## Issues
 
