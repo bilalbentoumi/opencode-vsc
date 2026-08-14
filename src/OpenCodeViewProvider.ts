@@ -8,6 +8,7 @@ import {
   type ChildProcessWithoutNullStreams,
 } from "child_process";
 import * as vscode from "vscode";
+import { startInjectingProxy, type InjectingProxy } from "./proxy";
 
 interface ViewMessage {
   type: string;
@@ -22,6 +23,8 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
   private view?: vscode.WebviewView;
   private server?: ChildProcessWithoutNullStreams;
   private serverUrl?: string;
+  private proxy?: InjectingProxy;
+  private appUrl?: string;
   private serverId = 0;
   private retryAttempts = 0;
 
@@ -37,10 +40,16 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
     webviewView.webview.options = { enableScripts: true };
     webviewView.webview.html = this.getHtml(webviewView.webview);
 
-    webviewView.webview.onDidReceiveMessage((message) => {
-      if ((message as ViewMessage).type === "load") {
+    webviewView.webview.onDidReceiveMessage((message: ViewMessage) => {
+      if (message.type === "load") {
         this.retryAttempts = 0;
+        if (this.appUrl) {
+          this.post({ type: "url", url: this.appUrl });
+          return;
+        }
         this.startServer();
+      } else if (message.type === "bridge-request") {
+        void this.handleBridgeRequest(message);
       }
     });
 
@@ -100,7 +109,7 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
       const match = buffer.match(/listening on (http:\/\/[\w.:[\]-]+)/);
       if (match && !this.serverUrl) {
         this.serverUrl = match[1];
-        this.post({ type: "url", url: `${this.serverUrl}/app` });
+        void this.publishAppUrl(id, match[1]);
       }
     };
     child.stdout.on("data", onChunk);
@@ -113,6 +122,9 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
       const hadUrl = Boolean(this.serverUrl);
       this.server = undefined;
       this.serverUrl = undefined;
+      this.proxy?.dispose();
+      this.proxy = undefined;
+      this.appUrl = undefined;
       if (id !== this.serverId) {
         return;
       }
@@ -142,11 +154,77 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
   }
 
   private stopServer(): void {
+    this.proxy?.dispose();
+    this.proxy = undefined;
+    this.appUrl = undefined;
     if (this.server) {
       const child = this.server;
       this.server = undefined;
       this.serverUrl = undefined;
       child.kill();
+    }
+  }
+
+  /**
+   * The UI is served through a local proxy that injects media/bridge.js, which
+   * restores the clipboard, the context menu and the shortcuts VS Code cannot
+   * deliver to a cross-origin iframe.
+   */
+  private async publishAppUrl(id: number, serverUrl: string): Promise<void> {
+    const bridgeScript = vscode.Uri.joinPath(
+      this.extensionUri,
+      "media",
+      "bridge.js",
+    ).fsPath;
+
+    try {
+      const proxy = await startInjectingProxy(serverUrl, bridgeScript);
+      if (id !== this.serverId) {
+        proxy.dispose();
+        return;
+      }
+      this.proxy?.dispose();
+      this.proxy = proxy;
+      this.appUrl = `${proxy.origin}/app`;
+    } catch {
+      // Still usable without the proxy, minus clipboard and context menu.
+      if (id !== this.serverId) {
+        return;
+      }
+      this.appUrl = `${serverUrl}/app`;
+    }
+    this.post({ type: "url", url: this.appUrl });
+  }
+
+  /** Runs an editing command inside the OpenCode page via the bridge. */
+  runBridgeCommand(command: string): void {
+    this.post({ type: "bridge-command", command });
+  }
+
+  private async handleBridgeRequest(message: ViewMessage): Promise<void> {
+    const id = message.id;
+    try {
+      let result: unknown;
+      switch (message.kind) {
+        case "clipboard.read":
+          result = await vscode.env.clipboard.readText();
+          break;
+        case "clipboard.write": {
+          const payload = message.payload as { text?: string } | undefined;
+          await vscode.env.clipboard.writeText(payload?.text ?? "");
+          result = true;
+          break;
+        }
+        default:
+          throw new Error(`Unknown bridge request "${String(message.kind)}"`);
+      }
+      this.post({ type: "bridge-response", id, result });
+    } catch (err) {
+      this.post({
+        type: "bridge-response",
+        id,
+        error: (err as Error).message,
+      });
     }
   }
 

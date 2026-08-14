@@ -48,6 +48,38 @@
       {
         "command": "opencode-vsc.restart",
         "title": "OpenCode: Restart Session"
+      },
+      {
+        "command": "opencode-vsc.selectAll",
+        "title": "OpenCode: Select All"
+      },
+      {
+        "command": "opencode-vsc.undo",
+        "title": "OpenCode: Undo"
+      },
+      {
+        "command": "opencode-vsc.redo",
+        "title": "OpenCode: Redo"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "opencode-vsc.selectAll",
+        "key": "ctrl+a",
+        "mac": "cmd+a",
+        "when": "focusedView == 'opencode-vsc-view'"
+      },
+      {
+        "command": "opencode-vsc.undo",
+        "key": "ctrl+z",
+        "mac": "cmd+z",
+        "when": "focusedView == 'opencode-vsc-view'"
+      },
+      {
+        "command": "opencode-vsc.redo",
+        "key": "ctrl+shift+z",
+        "mac": "cmd+shift+z",
+        "when": "focusedView == 'opencode-vsc-view'"
       }
     ],
     "configuration": {

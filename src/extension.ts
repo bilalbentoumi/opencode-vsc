@@ -20,6 +20,13 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("opencode-vsc.restart", () =>
       provider.restart(),
     ),
+    // VS Code's Edit menu swallows these shortcuts and applies them to the
+    // webview document instead of the OpenCode page, so route them ourselves.
+    ...["selectAll", "undo", "redo"].map((command) =>
+      vscode.commands.registerCommand(`opencode-vsc.${command}`, () =>
+        provider.runBridgeCommand(command),
+      ),
+    ),
     provider,
   );
 }
