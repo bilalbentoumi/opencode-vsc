@@ -2,7 +2,7 @@
   "name": "vsc-opencode",
   "displayName": "OpenCode — AI Agent for VS Code",
   "description": "Embeds the OpenCode web UI in a VS Code side panel.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "bilalbentoumi",
   "icon": "media/icon.png",
   "repository": {
