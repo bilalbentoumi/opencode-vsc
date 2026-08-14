@@ -90,6 +90,11 @@
           "default": "opencode",
           "description": "Command (or full path) used to launch the OpenCode server."
         },
+        "opencode-vsc.cwd": {
+          "type": "string",
+          "default": "",
+          "description": "Directory the OpenCode server runs in. Leave empty to use the workspace folder of the active editor (falling back to the first workspace folder, then your home directory)."
+        },
         "opencode-vsc.port": {
           "type": "number",
           "default": 0,

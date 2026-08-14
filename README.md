@@ -30,7 +30,7 @@ AI coding agent for VS Code, powered by OpenCode.
 
 ## Overview
 
-OpenCode Terminal embeds **OpenCode's web UI** in a VS Code side panel. It spawns an external `opencode serve` process and loads the official UI at `http://127.0.0.1:<port>/app` in a webview iframe — sharing the exact same binary, config, auth, providers, MCP servers, agents, and rules as the terminal TUI.
+OpenCode Terminal embeds **OpenCode's web UI** in a VS Code side panel. It spawns an external `opencode serve` process and loads the official UI at `http://127.0.0.1:<port>/<workspace-dir>` in a webview iframe — sharing the exact same binary, config, auth, providers, MCP servers, agents, and rules as the terminal TUI.
 
 No custom terminal emulator, no xterm.js, no node-pty — just OpenCode's own UI.
 

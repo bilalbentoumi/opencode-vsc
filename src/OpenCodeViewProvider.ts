@@ -25,6 +25,7 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
   private serverUrl?: string;
   private proxy?: InjectingProxy;
   private appUrl?: string;
+  private cwd?: string;
   private serverId = 0;
   private retryAttempts = 0;
 
@@ -83,8 +84,8 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
     const requestedPort =
       port ??
       vscode.workspace.getConfiguration("opencode-vsc").get<number>("port", 0);
-    const cwd =
-      vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? os.homedir();
+    const cwd = resolveWorkingDirectory();
+    this.cwd = cwd;
 
     let child: ChildProcessWithoutNullStreams;
     try {
@@ -171,6 +172,7 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
    * deliver to a cross-origin iframe.
    */
   private async publishAppUrl(id: number, serverUrl: string): Promise<void> {
+    const route = directoryRoute(this.cwd);
     const bridgeScript = vscode.Uri.joinPath(
       this.extensionUri,
       "media",
@@ -185,13 +187,13 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
       }
       this.proxy?.dispose();
       this.proxy = proxy;
-      this.appUrl = `${proxy.origin}/app`;
+      this.appUrl = `${proxy.origin}${route}`;
     } catch {
       // Still usable without the proxy, minus clipboard and context menu.
       if (id !== this.serverId) {
         return;
       }
-      this.appUrl = `${serverUrl}/app`;
+      this.appUrl = `${serverUrl}${route}`;
     }
     this.post({ type: "url", url: this.appUrl });
   }
@@ -265,6 +267,45 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
 </body>
 </html>`;
   }
+}
+
+/**
+ * The directory the server runs in — the folder of the active editor when the
+ * workspace has several roots, so the panel follows what you are working on.
+ */
+function resolveWorkingDirectory(): string {
+  const configured = vscode.workspace
+    .getConfiguration("opencode-vsc")
+    .get<string>("cwd", "")
+    .trim();
+  if (configured) {
+    return configured.startsWith("~")
+      ? path.join(os.homedir(), configured.slice(1))
+      : configured;
+  }
+
+  const folders = vscode.workspace.workspaceFolders;
+  if (!folders?.length) {
+    return os.homedir();
+  }
+  const active = vscode.window.activeTextEditor?.document.uri;
+  const activeFolder = active
+    ? vscode.workspace.getWorkspaceFolder(active)
+    : undefined;
+  return (activeFolder ?? folders[0]).uri.fsPath;
+}
+
+/**
+ * The web UI routes projects as /:dir, where dir is the base64url-encoded
+ * absolute path (it base64url-decodes the segment and rejects anything that is
+ * not a directory — a literal path, or the old /app, fails with "Invalid
+ * directory in URL").
+ */
+function directoryRoute(cwd: string | undefined): string {
+  if (!cwd) {
+    return "/";
+  }
+  return `/${Buffer.from(cwd, "utf8").toString("base64url")}`;
 }
 
 function getNonce(): string {
