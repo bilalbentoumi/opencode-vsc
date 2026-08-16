@@ -1,5 +1,4 @@
 import * as fs from "fs";
-import * as net from "net";
 import * as os from "os";
 import * as path from "path";
 import {
@@ -15,7 +14,8 @@ interface ViewMessage {
   [key: string]: unknown;
 }
 
-const MAX_RETRIES = 3;
+/** The server always listens here, so the panel URL is stable across restarts. */
+const SERVER_PORT = 4097;
 
 export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "opencode-vsc-view";
@@ -27,7 +27,6 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
   private appUrl?: string;
   private cwd?: string;
   private serverId = 0;
-  private retryAttempts = 0;
 
   constructor(private readonly extensionUri: vscode.Uri) {}
 
@@ -43,7 +42,6 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
 
     webviewView.webview.onDidReceiveMessage((message: ViewMessage) => {
       if (message.type === "load") {
-        this.retryAttempts = 0;
         if (this.appUrl) {
           this.post({ type: "url", url: this.appUrl });
           return;
@@ -66,12 +64,11 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
     }
     this.serverId++;
     this.stopServer();
-    this.retryAttempts = 0;
     this.post({ type: "status", message: "Restarting opencode server…" });
     this.startServer();
   }
 
-  private startServer(port?: number): void {
+  private startServer(): void {
     if (this.server) {
       return;
     }
@@ -81,15 +78,12 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
         .getConfiguration("opencode-vsc")
         .get<string>("command", "opencode"),
     );
-    const requestedPort =
-      port ??
-      vscode.workspace.getConfiguration("opencode-vsc").get<number>("port", 0);
     const cwd = resolveWorkingDirectory();
     this.cwd = cwd;
 
     let child: ChildProcessWithoutNullStreams;
     try {
-      child = spawn(command, ["serve", "--port", String(requestedPort)], {
+      child = spawn(command, ["serve", "--port", String(SERVER_PORT)], {
         cwd,
         env: { ...process.env },
       });
@@ -129,21 +123,10 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
       if (id !== this.serverId) {
         return;
       }
-      if (!hadUrl && code !== 0 && this.retryAttempts < MAX_RETRIES) {
-        this.retryAttempts++;
-        this.post({
-          type: "status",
-          message: "Port busy — retrying on a free port…",
-        });
-        void findFreePort().then((freePort) => {
-          if (id === this.serverId) {
-            this.startServer(freePort);
-          }
-        });
-      } else if (!hadUrl) {
+      if (!hadUrl) {
         this.post({
           type: "error",
-          message: `Failed to start the opencode server (exit code ${code ?? "unknown"}). Check the binary and that the port is free, then use the Restart button.`,
+          message: `Failed to start the opencode server (exit code ${code ?? "unknown"}). Check the binary and that port ${SERVER_PORT} is free, then use the Restart button.`,
         });
       } else {
         this.post({
@@ -248,12 +231,16 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
-    body { position: relative; background: #1e1e1e; }
+    body {
+      position: relative;
+      background: var(--vscode-sideBar-background, var(--vscode-panel-background));
+    }
     #frame { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
     #status {
       position: absolute; inset: 0;
       display: flex; align-items: center; justify-content: center;
-      color: #9d9d9d; font-family: Menlo, Monaco, monospace; font-size: 12px;
+      color: var(--vscode-descriptionForeground, #9d9d9d);
+      font-family: Menlo, Monaco, monospace; font-size: 12px;
       text-align: center; padding: 16px; box-sizing: border-box;
       pointer-events: none; white-space: pre-wrap;
     }
@@ -316,19 +303,6 @@ function getNonce(): string {
     text += chars.charAt(Math.floor(Math.random() * chars.length));
   }
   return text;
-}
-
-function findFreePort(): Promise<number> {
-  return new Promise((resolve) => {
-    const server = net.createServer();
-    server.unref();
-    server.on("error", () => resolve(0));
-    server.listen(0, "127.0.0.1", () => {
-      const address = server.address();
-      const port = typeof address === "object" && address ? address.port : 0;
-      server.close(() => resolve(port));
-    });
-  });
 }
 
 let cachedBinary: string | undefined;
