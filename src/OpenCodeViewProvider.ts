@@ -173,6 +173,7 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
         serverUrl,
         bridgeScript,
         PROXY_PORT,
+        this.cwd,
       );
       if (id !== this.serverId) {
         proxy.dispose();

@@ -12,6 +12,64 @@
 
 	const REQUEST_TIMEOUT = 5000;
 
+	// --- project ------------------------------------------------------------
+
+	// localStorage is keyed by origin, and the proxy's origin is now a fixed
+	// port, so OpenCode's state survives between launches and it reopens
+	// whichever project was last used. Point "last project" at the folder VS
+	// Code has open instead. This runs from the first tag in <head>, before the
+	// app bundle reads any of it. Only ever adds, so nothing the user has set up
+	// in OpenCode is dropped if the shape is not what we expect.
+	function seedProject() {
+		const source = document.currentScript?.src;
+		if (!source) {
+			return;
+		}
+		let dir = null;
+		try {
+			dir = new URL(source).searchParams.get("dir");
+		} catch {
+			return;
+		}
+		if (!dir) {
+			return;
+		}
+
+		const KEY = "opencode.global.dat:server";
+		const isPlainObject = (value) =>
+			typeof value === "object" && value !== null && !Array.isArray(value);
+
+		let state;
+		try {
+			state = JSON.parse(localStorage.getItem(KEY) ?? "{}");
+		} catch {
+			return;
+		}
+		if (!isPlainObject(state)) {
+			state = {};
+		}
+
+		// "local" is the scope OpenCode uses for a loopback server.
+		const projects = isPlainObject(state.projects) ? state.projects : {};
+		const local = Array.isArray(projects.local) ? projects.local : [];
+		const listed = local.some((entry) => entry?.worktree === dir);
+		state.projects = {
+			...projects,
+			local: listed ? local : [{ worktree: dir, expanded: true }, ...local],
+		};
+		state.lastProject = {
+			...(isPlainObject(state.lastProject) ? state.lastProject : {}),
+			local: dir,
+		};
+
+		try {
+			localStorage.setItem(KEY, JSON.stringify(state));
+		} catch {
+			// Storage disabled or full — the URL still routes to the directory.
+		}
+	}
+	seedProject();
+
 	let parentOrigin = null;
 	let outbox = [];
 	const pending = new Map();

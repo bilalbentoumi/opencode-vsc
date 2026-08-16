@@ -13,7 +13,17 @@ import type { Socket } from "net";
  */
 export const BRIDGE_PATH = "/__opencode-vsc/bridge.js";
 
-const SCRIPT_TAG = `<script src="${BRIDGE_PATH}"></script>`;
+/**
+ * The bridge needs the folder VS Code has open, to point OpenCode's "last
+ * project" at it. It rides on the script URL because the page is same-origin
+ * and the value is fixed for the proxy's lifetime.
+ */
+function scriptTagFor(projectDir: string | undefined): string {
+  const src = projectDir
+    ? `${BRIDGE_PATH}?dir=${encodeURIComponent(projectDir)}`
+    : BRIDGE_PATH;
+  return `<script src="${src}"></script>`;
+}
 
 const HOP_BY_HOP = new Set([
   "connection",
@@ -40,7 +50,9 @@ export function startInjectingProxy(
   targetUrl: string,
   bridgeScriptPath: string,
   listenPort: number,
+  projectDir?: string,
 ): Promise<InjectingProxy> {
+  const scriptTag = scriptTagFor(projectDir);
   const target = new URL(targetUrl);
   const upstream: Upstream = {
     host: target.hostname,
@@ -52,7 +64,7 @@ export function startInjectingProxy(
     if ((req.url ?? "").split("?")[0] === BRIDGE_PATH) {
       serveBridge(bridgeScriptPath, res);
     } else {
-      forward(req, res, upstream);
+      forward(req, res, upstream, scriptTag);
     }
   });
 
@@ -93,6 +105,7 @@ function forward(
   req: http.IncomingMessage,
   res: http.ServerResponse,
   upstream: Upstream,
+  scriptTag: string,
 ): void {
   const headers: http.OutgoingHttpHeaders = { ...req.headers };
   // Identity encoding keeps HTML injectable; everything here is loopback.
@@ -131,7 +144,10 @@ function forward(
       const chunks: Buffer[] = [];
       upstreamRes.on("data", (chunk: Buffer) => chunks.push(chunk));
       upstreamRes.on("end", () => {
-        const body = injectBridge(Buffer.concat(chunks).toString("utf8"));
+        const body = injectBridge(
+          Buffer.concat(chunks).toString("utf8"),
+          scriptTag,
+        );
         const outgoing = forwardableHeaders(upstreamRes.headers);
         delete outgoing["content-length"];
         res.writeHead(status, {
@@ -208,8 +224,8 @@ function forwardableHeaders(
   return result;
 }
 
-function injectBridge(html: string): string {
-  if (html.includes(SCRIPT_TAG)) {
+function injectBridge(html: string, scriptTag: string): string {
+  if (html.includes(scriptTag)) {
     return html;
   }
   // The page's CSP allows script-src 'self', and the bridge is served from this
@@ -217,9 +233,9 @@ function injectBridge(html: string): string {
   const head = html.search(/<head[^>]*>/i);
   if (head !== -1) {
     const insertAt = html.indexOf(">", head) + 1;
-    return html.slice(0, insertAt) + SCRIPT_TAG + html.slice(insertAt);
+    return html.slice(0, insertAt) + scriptTag + html.slice(insertAt);
   }
-  return SCRIPT_TAG + html;
+  return scriptTag + html;
 }
 
 function serveBridge(
