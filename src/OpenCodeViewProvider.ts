@@ -17,6 +17,12 @@ interface ViewMessage {
 /** The server always listens here, so the panel URL is stable across restarts. */
 const SERVER_PORT = 4097;
 
+/**
+ * The iframe loads the bridge-injecting proxy, not the server directly, so this
+ * is the port actually visible in the panel URL. Fixed for the same reason.
+ */
+const PROXY_PORT = SERVER_PORT + 1;
+
 export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = "opencode-vsc-view";
 
@@ -163,7 +169,11 @@ export class OpenCodeViewProvider implements vscode.WebviewViewProvider {
     ).fsPath;
 
     try {
-      const proxy = await startInjectingProxy(serverUrl, bridgeScript);
+      const proxy = await startInjectingProxy(
+        serverUrl,
+        bridgeScript,
+        PROXY_PORT,
+      );
       if (id !== this.serverId) {
         proxy.dispose();
         return;

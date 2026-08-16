@@ -53,7 +53,7 @@ For more information, visit the repository.
 - Shares the exact same config as the terminal TUI (MCP servers, agents, rules, auth, providers) because it runs the same binary against the same config files.
 - Auto-manages the server process: starts it when the panel opens, stops it when the panel closes or the extension deactivates.
 - Robust PATH resolution: checks `PATH`, common install locations (`~/.opencode/bin`, Homebrew, `/usr/local`), then falls back to your login shell (`zsh`/`bash`) — works even when VS Code is launched from Finder.
-- Fixed port `4097`, so the panel URL stays stable across restarts.
+- Fixed ports, so URLs stay stable across restarts: the server on `4097`, the bridge proxy the panel actually loads on `4098`.
 - `Restart` button in the panel title bar.
 
 ## Configuration
@@ -63,7 +63,8 @@ For more information, visit the repository.
 | `opencode-vsc.command` | `opencode` | Command (or full path) used to launch the OpenCode server.                                                                                      |
 | `opencode-vsc.cwd`     | `""`       | Directory the server runs in. Empty = workspace folder of the active editor (falling back to the first workspace folder, then your home directory). |
 
-The server always listens on port `4097`.
+Ports are fixed, not configurable: the OpenCode server listens on `4097`, and the
+bridge-injecting proxy — the origin the panel iframe actually loads — on `4098`.
 
 ## Commands
 
